@@ -102,3 +102,12 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# EAGLE revision history
+*.b#*
+*.s#*
+*.l#*
+
+images/
+
+manuals/
