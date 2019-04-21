@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
+from time import sleep
 import pigpio
 
 pi = pigpio.pi()
 
 cols = [21, 20, 26]
-rows = [5, 6, 12, 13, 19, 20]
+rows = [5, 6, 12, 13, 19, 16]
+
+keys = [
+        ['F','*','CLR'],
+        ['E','9','0'],
+        ['D','7','8'],
+        ['C','5','6'],
+        ['B','3','4'],
+        ['A','1','2']
+     ]
 
 for col in cols:
     pi.set_mode(col,pigpio.OUTPUT)
@@ -21,7 +31,12 @@ while True:
         for row in rows:
             state = pi.read(row)
             if state:
-                print('(%d,%d)'%(row,col))
+                sleep(0.2)
+                state = pi.read(row)
+                if state:
+                    char = keys[rows.index(row)][cols.index(col)]
+                    print('(%d,%d): %s'%(row,col,char))
         pi.write(col,0)
+        sleep(0.05)
 
 pi.stop()
