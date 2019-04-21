@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from helper.row_driver import Row
 from helper.keypad import Keypad
+from helper.display import Display
 
 class Dixie_Narco:
     def __init__(self):
@@ -16,6 +17,7 @@ class Dixie_Narco:
             self.rows[row].status(False)
 
         self.keypad = Keypad()
+        self.display = Display()
 
     def get_selection(self):
         while True:
@@ -25,16 +27,19 @@ class Dixie_Narco:
                 char = self.keypad.scan()
                 if char in 'ABCDEF':
                     selection.append(char)
+                    self.display.draw_row(char)
                     self.rows[char].status(True)
                     break
             char = self.keypad.scan()
             if char in '123456789':
                 selection.append(char)
+                self.display.draw_slot(selection[0],selection[1])
                 print('Selected %s'%selection)
                 return ''.join(selection)
             elif char == 'CLR':
                 for row in self.rows:
                     self.rows[row].status(False)
+                self.display.splash()
                 continue
     
     def vend(self,slot):
@@ -47,5 +52,6 @@ class Dixie_Narco:
 if __name__ == '__main__':
     vending = Dixie_Narco()
     while True:
+        vending.display.splash()
         slot = vending.get_selection()
         vending.vend(slot)
