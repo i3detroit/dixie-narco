@@ -17,7 +17,7 @@ class Dixie_Narco:
 
     def get_selection(self):
         while True:
-            char = None
+            char = ''
             selection = ''
             while char not in 'ABCDEF':
                 char = self.keypad.scan()
