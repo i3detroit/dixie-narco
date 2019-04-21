@@ -33,7 +33,7 @@ class Keypad:
                 for row in self._rows:
                     state = self._pi.read(row)
                     if state:
-                        sleep(0.2)
+                        sleep(0.05)
                         state = self._pi.read(row)
                         if state:
                             char = self._keys[self._rows.index(row)][self._cols.index(col)]
