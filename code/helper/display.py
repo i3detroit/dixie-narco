@@ -11,18 +11,16 @@ class Display:
         self._device = ssd1322(self._serial,width=256,height=64)
         self._fnt = ImageFont.truetype('/home/agmlego/src/b612/fonts/ttf/B612Mono-Regular.ttf',16)
 
-    def splash(self):
+    def splash(self,slot=''):
         with canvas(self._device) as draw:
             draw.rectangle(self._device.bounding_box, outline='white', fill='black')
-            draw.text((10,0),'Welcome to i3Detroit!\nPlease make a selection: ',font=self._fnt,fill='white')
+            draw.text((2,2),'Welcome to i3Detroit!\nPlease make a selection: \n%s'%slot,font=self._fnt,fill='white')
     
     def draw_row(self,row):
-        with canvas(self._device) as draw:
-            draw.text((180,32),row,font=self._fnt,fill='white')
+        self.splash(row)
     
-    def draw_slot(self,slot):
-        with canvas(self._device) as draw:
-            draw.text((200,32),slot,font=self._fnt,fill='white')
+    def draw_slot(self,row,slot):
+        self.splash(row+slot)
 
 if __name__ == '__main__':
     from time import sleep
@@ -32,5 +30,5 @@ if __name__ == '__main__':
         row = input('Row? ')
         disp.draw_row(row)
         slot = input('Slot? ')
-        disp.draw_slot(slot)
+        disp.draw_slot(row,slot)
         sleep(1)
