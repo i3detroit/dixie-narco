@@ -12,22 +12,29 @@ class Dixie_Narco:
             'E':Row(0x21,'E'),
             'F':Row(0x20,'F')
         }
+        for row in self.rows:
+            self.rows[row].status(False)
 
         self.keypad = Keypad()
 
     def get_selection(self):
         while True:
             char = ''
-            selection = ''
-            while char not in 'ABCDEF':
+            selection = []
+            while True:
                 char = self.keypad.scan()
-            selection += char
+                if char in 'ABCDEF':
+                    selection.append(char)
+                    self.rows[char].status(True)
+                    break
             char = self.keypad.scan()
             if char in '123456789':
-                selection += char
+                selection.append(char)
                 print('Selected %s'%selection)
-                return selection
+                return ''.join(selection)
             elif char == 'CLR':
+                for row in self.rows:
+                    self.rows[row].status(False)
                 continue
     
     def vend(self,slot):
@@ -35,6 +42,7 @@ class Dixie_Narco:
         col = int(col)
         print('Vending from %s,%d'%(row,col))
         self.rows[row].vend(col)
+        self.rows[row].status(False)
 
 if __name__ == '__main__':
     vending = Dixie_Narco()
