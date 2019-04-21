@@ -18,7 +18,7 @@ class I2C:
 class Row:
     _pinmap = (None,8,7,6,5,4,3,2,1,0)
     _status = 15
-    def __init__(self,address=0x20,label='F')
+    def __init__(self,address=0x20,label='F'):
         self._i2c = I2C()
         self.address = address
         self.label = label
