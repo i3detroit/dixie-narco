@@ -4,50 +4,61 @@ import busio
 import adafruit_mcp230xx
 import digitalio
 from time import sleep
-i2c = busio.I2C(board.SCL,board.SDA)
 
-rows = []
-for addr in range(0x20,0x26):
-    try:
-        rows.append(adafruit_mcp230xx.MCP23017(i2c,address=addr))
-    except (OSError,ValueError):
-        print("No such device %x"%addr)
-        rows.append(None)
+class I2C:
+    _shared_state = {}
+    def __init__(self):
+        self.__dict__ = self._shared_state
+        busio.I2C(board.SCL,board.SDA)
+    def __hash__(self): return 1
+    def __eq__(self, other):
+        try: return self.__dict__ is other.__dict__
+        except: return 0
 
-for row in rows:
-    if row:
-        for pin in range(16):
-            row.get_pin(pin).direction = digitalio.Direction.OUTPUT
-            row.get_pin(pin).value = False
-    
-pinmap = {
-    'v0':0,
-    'v1':1,
-    'v2':2,
-    'v3':3,
-    'v4':4,
-    'v5':5,
-    'v6':6,
-    'v7':7,
-    'v8':8,
-    'r1':9,
-    'r2':10,
-    'r3':11,
-    'r4':12,
-    's':15
-}
+class Row:
+    _pinmap = (None,8,7,6,5,4,3,2,1,0)
+    _status = 15
+    def __init__(self,address=0x20,label='F')
+        self._i2c = I2C()
+        self.address = address
+        self.label = label
+        try:
+            self._driver = adafruit_mcp230xx.MCP23017(self._i2c,address=self.address)
+            for pin in self._pinmap[1:]+(self._status):
+                self._driver.get_pin(pin).direction = digitalio.Direction.OUTPUT
+                self._driver.get_pin(pin).value = False
+            self.status(True)
+        except (OSError,ValueError):
+            print("No such device %x"%self.address)
+            raise
 
-while True:
-    c = input()
-    row = rows[int(c[0])]
-    if not row:
-        print('No such device %s'%c)
-        continue
-    try:
-        pin = pinmap[c[1:]]
-        row.get_pin(pin).value = True
+    def vend(self,slot):
+        pin = self._pinmap[slot]
+        self._driver.get_pin(pin).value = True
         sleep(0.5)
-        row.get_pin(pin).value = False
-    except KeyError:
-        print('bad pin "%s"'%c)
-        continue
+        self._driver.get_pin(pin).value = False
+
+    def status(self,state):
+        self._driver.get_pin(self._status).value = state
+
+if __name__ == '__main__':
+    rows = {
+        'A':Row(0x25,'A'),
+        'B':Row(0x24,'B'),
+        'C':Row(0x23,'C'),
+        'D':Row(0x22,'D'),
+        'E':Row(0x21,'E'),
+        'F':Row(0x20,'F')
+    }
+
+    while True:
+        c = input()
+        row = rows[c[0]]
+        if not row:
+            print('No such device %s'%c)
+            continue
+        try:
+            row.vend(int(c[1]))
+        except (IndexError,AttributeError):
+            print('bad pin "%s"'%c)
+            continue
