@@ -14,15 +14,15 @@ class Display:
     def splash(self):
         with canvas(self._device) as draw:
             draw.rectangle(self._device.bounding_box, outline='white', fill='black')
-            draw.text((10,0),'Welcome to i3Detroit!\nPlease make a selection: ')
+            draw.text((10,0),'Welcome to i3Detroit!\nPlease make a selection: ',font=self._fnt,fill='white')
     
     def draw_row(self,row):
         with canvas(self._device) as draw:
-            draw.text((180,32),row)
+            draw.text((180,32),row,font=self._fnt,fill='white')
     
     def draw_slot(self,slot):
         with canvas(self._device) as draw:
-            draw.text((200,32),slot)
+            draw.text((200,32),slot,font=self._fnt,fill='white')
 
 if __name__ == '__main__':
     from time import sleep
