@@ -24,7 +24,7 @@ class Row:
         self.label = label
         try:
             self._driver = adafruit_mcp230xx.MCP23017(self._i2c.i2c,address=self.address)
-            for pin in self._pinmap[1:]+(self._status):
+            for pin in self._pinmap[1:]+(self._status,):
                 self._driver.get_pin(pin).direction = digitalio.Direction.OUTPUT
                 self._driver.get_pin(pin).value = False
             self.status(True)
