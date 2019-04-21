@@ -9,7 +9,7 @@ class I2C:
     _shared_state = {}
     def __init__(self):
         self.__dict__ = self._shared_state
-        busio.I2C(board.SCL,board.SDA)
+        self.i2c = busio.I2C(board.SCL,board.SDA)
     def __hash__(self): return 1
     def __eq__(self, other):
         try: return self.__dict__ is other.__dict__
@@ -23,7 +23,7 @@ class Row:
         self.address = address
         self.label = label
         try:
-            self._driver = adafruit_mcp230xx.MCP23017(self._i2c,address=self.address)
+            self._driver = adafruit_mcp230xx.MCP23017(self._i2c.i2c,address=self.address)
             for pin in self._pinmap[1:]+(self._status):
                 self._driver.get_pin(pin).direction = digitalio.Direction.OUTPUT
                 self._driver.get_pin(pin).value = False
