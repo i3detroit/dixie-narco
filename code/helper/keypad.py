@@ -12,6 +12,8 @@ for col in cols:
 
 for row in rows:
     pi.set_mode(row,pigpio.INPUT)
+    pi.set_pull_up_down(row,pigpio.PUD_DOWN)
+    pi.set_glitch_filter(row,100)
 
 while True:
     for col in cols:
