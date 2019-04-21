@@ -2,41 +2,52 @@
 from time import sleep
 import pigpio
 
-pi = pigpio.pi()
+class Keypad:
+    _cols = [21, 20, 26]
+    _rows = [5, 6, 12, 13, 19, 16]
 
-cols = [21, 20, 26]
-rows = [5, 6, 12, 13, 19, 16]
+    _keys = [
+            ['F','*','CLR'],
+            ['E','9','0'],
+            ['D','7','8'],
+            ['C','5','6'],
+            ['B','3','4'],
+            ['A','1','2']
+        ]
+    def __init__(self):
+        self._pi = pigpio.pi()
 
-keys = [
-        ['F','*','CLR'],
-        ['E','9','0'],
-        ['D','7','8'],
-        ['C','5','6'],
-        ['B','3','4'],
-        ['A','1','2']
-     ]
+        for col in self._cols:
+            self._pi.set_mode(col,pigpio.OUTPUT)
+            self._pi.write(col,0)
 
-for col in cols:
-    pi.set_mode(col,pigpio.OUTPUT)
-    pi.write(col,0)
+        for row in self._rows:
+            self._pi.set_mode(row,pigpio.INPUT)
+            self._pi.set_pull_up_down(row,pigpio.PUD_DOWN)
 
-for row in rows:
-    pi.set_mode(row,pigpio.INPUT)
-    pi.set_pull_up_down(row,pigpio.PUD_DOWN)
-    pi.set_glitch_filter(row,100)
+    def scan(self,blocking=True):
+        char = None
+        while char is None:
+            for col in self._cols:
+                self._pi.write(col,1)
+                for row in self._rows:
+                    state = self._pi.read(row)
+                    if state:
+                        sleep(0.2)
+                        state = self._pi.read(row)
+                        if state:
+                            char = self._keys[self._rows.index(row)][self._cols.index(col)]
+                            #print('(%d,%d): %s'%(row,col,char))
+                self._pi.write(col,0)
+                sleep(0.05)
+            if not blocking:
+                break
+        return char
 
-while True:
-    for col in cols:
-        pi.write(col,1)
-        for row in rows:
-            state = pi.read(row)
-            if state:
-                sleep(0.2)
-                state = pi.read(row)
-                if state:
-                    char = keys[rows.index(row)][cols.index(col)]
-                    print('(%d,%d): %s'%(row,col,char))
-        pi.write(col,0)
-        sleep(0.05)
+    def __del__(self):
+        self._pi.stop()
 
-pi.stop()
+if __name__ == '__main__':
+    k = Keypad()
+    while True:
+        print(k.scan())
